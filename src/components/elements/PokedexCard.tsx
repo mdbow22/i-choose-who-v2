@@ -15,7 +15,7 @@ const PokedexCard: React.FC<{ pokemon: Pokemon }> = ({ pokemon }) => {
     <div className='card md:w-1/4 px-2 py-2'>
       <div className='card-body relative h-full w-full bg-zinc-50 rounded-md border-b border-r border-gray-100 px-2 py-1 shadow-inner shadow-zinc-500/25'>
         <h4 className='text-xl font-bold text-teal-600'>
-          #{pokemon.natlDex} {pokemon.name}
+          #{pokemon.natlDex} {pokemon.name} {pokemon.region ? ' - ' + pokemon.region : ''}
         </h4>
         <div className='relative flex flex-nowrap gap-2 clear-both'>
         {pokemon.type.map((type) => {
