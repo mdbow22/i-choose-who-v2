@@ -11,4 +11,90 @@
   .btn-secondary {
     @apply bg-transparent shadow-none hover:bg-teal-500
   }
+
+  /* Pokemon Type Classes */
+  .Electric {
+    @apply bg-purple-300
+  }
+
+}
+
+.Bug {
+  background-color: #ab2;
+  color: white;
+}
+
+.Dark {
+  background-color: #754;
+  color: white;
+}
+
+.Dragon {
+  background-color: #76e;
+  color: white;
+}
+
+.Electric {
+  background-color: #fc3;
+  color: white;
+}
+
+.Fairy {
+  background-color: #e9e;
+  color: white;
+}
+
+.Fighting {
+  background-color: #b54;
+  color: white;
+}
+
+.Fire {
+  background-color: #f42;
+  color: white;
+}
+
+.Flying {
+  background-color: #89f;
+  color: white;
+}
+
+.Grass {
+  background-color: #7c5;
+  color: white;
+}
+
+.Ground {
+  background-color: #db5;
+  color: white;
+}
+
+.Ice {
+  background-color: #6cf;
+  color: white;
+}
+
+.Normal {
+  background-color: #aa9;
+  color: white;
+}
+
+.Poison {
+  background-color: #a59;
+  color: white;
+}
+
+.Psychic {
+  background-color: #db2777;
+  color: white;
+}
+
+.Rock {
+  background-color: #ba6;
+  color: white;
+}
+
+.Water {
+  background-color: #39f;
+  color: white;
 }

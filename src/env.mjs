@@ -26,6 +26,7 @@ const server = z.object({
   USERNAME: z.string(),
   PASSWORD: z.string(),
   EMAIL_FROM: z.string(),
+  NEXT_PUBLIC_API_URL: z.string(),
 });
 
 /**
@@ -54,6 +55,7 @@ const processEnv = {
   USERNAME: process.env.USERNAME,
   PASSWORD: process.env.PASSWORD,
   EMAIL_FROM: process.env.EMAIL_FROM,
+  NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
   // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
 };
 
