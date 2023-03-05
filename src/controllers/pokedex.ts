@@ -34,35 +34,7 @@ const get = async (req: NextApiRequest, Session: Session) => {
   let pokeAPIInfo: any[] = [];
   for (let i = 0; i < response.length; i++) {
     let name = response[i].pokemon.name.replace(/['‘’"“”]/g, '').toLowerCase();
-    let region = '';
-    console.log(response[i].pokemon.name);
-    // if(response[i].pokemon.name.includes("'")) {
-    //     name = response[i].pokemon.name.split('').filter((char: string) => char !== "\'").join('').toLowerCase();
-    // } else {
-    //     name = response[i].pokemon.name.toLowerCase();
-    // }
-
-    console.log(name);
-
-    if (response[i].pokemon.region) {
-      switch (response[i].pokemon.region) {
-        case 'Alola': {
-          region = '-alola';
-          break;
-        }
-        case 'Galarian': {
-          region = '-galar';
-          break;
-        }
-        case 'Hisuian': {
-          region = '-hisui';
-          break;
-        }
-        default:
-          '';
-      }
-    }
-
+    
     const info = await axios.get(
       `https://pokeapi.co/api/v2/pokemon/${name}${getRegion(response[i])}`
     );
