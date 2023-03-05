@@ -59,6 +59,11 @@
   color: white;
 }
 
+.Ghost {
+  background-color: #66b;
+  color: white;
+}
+
 .Grass {
   background-color: #7c5;
   color: white;
@@ -91,6 +96,11 @@
 
 .Rock {
   background-color: #ba6;
+  color: white;
+}
+
+.Steel {
+  background-color: #aab;
   color: white;
 }
 

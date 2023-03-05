@@ -29,6 +29,11 @@ const get = async (req: NextApiRequest, Session: Session) => {
     include: {
       pokemon: true,
     },
+    orderBy: {
+        pokemon: {
+            natlDex: 'asc',
+        }
+    }
   });
 
   let pokeAPIInfo: any[] = [];
