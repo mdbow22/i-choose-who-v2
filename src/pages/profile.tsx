@@ -64,6 +64,17 @@ const Profile: NextPage<{ allPokemon: PokemonDropDown }> = ({ allPokemon }) => {
     }
   }
 
+  const remove = async (pokeId: number) => {
+    const removal = await API.put('/api/pokedex/userPokemon', {
+      task: 'delete',
+      pokeIds: [pokeId],
+    })
+
+    if(removal.status === 200) {
+      setUserPokemon(prev => prev.filter(poke => ![pokeId].includes(poke.pokeId)));
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-t from-[#c6f2ff] to-[#ffffff]">
       <TopNav />
@@ -86,7 +97,7 @@ const Profile: NextPage<{ allPokemon: PokemonDropDown }> = ({ allPokemon }) => {
         <div className="flex flex-row flex-wrap items-stretch">
             {userPokemon.map(poke => {
                 return (
-                    <PokedexCard pokemon={poke} setUserPokemon={setUserPokemon} key={poke.pokeId} />
+                    <PokedexCard pokemon={poke} remove={remove} key={poke.pokeId} />
                 )
             })}
         </div>
