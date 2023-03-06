@@ -23,12 +23,12 @@ const Profile: NextPage<{ allPokemon: PokemonDropDown }> = ({ allPokemon }) => {
   const [userPokemon, setUserPokemon] = useState<Pokemon[]>([]);
   const API = useAPI();
 
-  useEffect(() => {
-    setPokemonDD(allPokemon.map(poke => ({
-      value: poke,
-      label: poke.region ? `#${poke.natlDex} ${poke.name} - ${poke.region}` : `#${poke.natlDex} ${poke.name}`,
-    })))
-  }, [allPokemon])
+  // useEffect(() => {
+  //   setPokemonDD(allPokemon.map(poke => ({
+  //     value: poke,
+  //     label: poke.region ? `#${poke.natlDex} ${poke.name} - ${poke.region}` : `#${poke.natlDex} ${poke.name}`,
+  //   })))
+  // }, [allPokemon])
 
   useEffect(() => {
     let initialized = false;
@@ -36,17 +36,31 @@ const Profile: NextPage<{ allPokemon: PokemonDropDown }> = ({ allPokemon }) => {
     if(!initialized) {
       API.get('/api/pokedex/userPokemon').then((res: any) => {
         setUserPokemon(res.data);
+
+        setPokemonDD(allPokemon.filter(poke => !res.data.map((poke: any) => poke.pokeId).includes(poke.id)).map(poke => ({
+          value: poke,
+          label: poke.region ? `#${poke.natlDex} ${poke.name} - ${poke.region}` : `#${poke.natlDex} ${poke.name}`,
+        })))
       })
     }
 
     return () => { initialized = true; }
-  }, [API])
+  }, [API, allPokemon])
 
   const submit = async () => {
     if(selectedPokes.length) {
-      API.post('/api/pokedex/userPokemon', {
-        pokeId: selectedPokes[0].value.id,
+      const ids = selectedPokes.length === 1 ? selectedPokes[0].value.id : selectedPokes.map(poke => poke.value.id);
+      const post = await API.post('/api/pokedex/userPokemon', {
+        pokeId: ids,
       })
+
+      if(post.status === 201) {
+        API.get('/api/pokedex/userPokemon').then((res: any) => {
+          setUserPokemon(res.data);
+        })
+      }
+
+      setSelectedPokes([]);
     }
   }
 
@@ -72,7 +86,7 @@ const Profile: NextPage<{ allPokemon: PokemonDropDown }> = ({ allPokemon }) => {
         <div className="flex flex-row flex-wrap items-stretch">
             {userPokemon.map(poke => {
                 return (
-                    <PokedexCard pokemon={poke} key={poke.pokeId} />
+                    <PokedexCard pokemon={poke} setUserPokemon={setUserPokemon} key={poke.pokeId} />
                 )
             })}
         </div>

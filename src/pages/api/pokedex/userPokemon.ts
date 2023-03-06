@@ -19,7 +19,8 @@ const userPokemon = async (req: NextApiRequest, res: NextApiResponse) => {
             return res.status(201).json(response);
         }
         case 'PUT': {
-            return res.status(405).json({message: 'PUT is not a valid method'});
+            const response = await pokedex.put(req, Session);
+            return res.status(200).json(response);
         }
     }
 }
