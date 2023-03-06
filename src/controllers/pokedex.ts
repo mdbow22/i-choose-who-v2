@@ -39,6 +39,10 @@ const get = async (req: NextApiRequest, Session: Session) => {
   let pokeAPIInfo: any[] = [];
   for (let i = 0; i < response.length; i++) {
     let name = response[i].pokemon.name.replace(/['‘’"“”]/g, '').toLowerCase();
+
+    if(name === 'pumpkaboo' || name == 'gourgeist') {
+        name = name + '-average';
+    }
     
     const info = await axios.get(
       `https://pokeapi.co/api/v2/pokemon/${name}${getRegion(response[i])}`
@@ -61,7 +65,8 @@ const get = async (req: NextApiRequest, Session: Session) => {
           poke.name ===
             pokemon.pokemon.name.replace(/['‘’"“”]/g, '')
               .toLowerCase()
-              .concat(getRegion(pokemon))
+              .concat(getRegion(pokemon)) ||
+            poke.name === `${pokemon.pokemon.name.toLowerCase()}-average`
       )?.sprites?.front_default,
     };
   });
