@@ -85,3 +85,26 @@ model UsersPokemon {
 
     @@id([userId, pokeId])
 }
+
+model Types {
+    id          Int         @id @default(autoincrement())
+    type        String
+    grass       String?
+    water       String?
+    fire        String?
+    electric    String?
+    rock        String?
+    ground      String?
+    bug         String?
+    poison      String?
+    flying      String?
+    normal      String?
+    fighting    String?
+    psychic     String?
+    ghost       String?
+    ice         String?
+    dragon      String?
+    dark        String?
+    steel       String?
+    fairy       String?
+}
