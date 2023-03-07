@@ -100,11 +100,11 @@ const Profile: NextPage<{ allPokemon: PokemonDropDown }> = ({ allPokemon }) => {
     <div className="min-h-screen bg-gradient-to-t from-[#c6f2ff] to-[#ffffff]">
       <TopNav />
       <main className="container relative mx-auto mt-10 max-w-5xl min-h-screen">
-        <h1 className="mb-5 text-4xl font-bold text-teal-600">
+        <h1 className="mb-5 px-4 text-4xl font-bold text-teal-600">
           {session?.user.name ?? session?.user.email?.split("@")[0]}&apos;s
           Pokédex
         </h1>
-        <div className='mb-5 flex flex-nowrap w-full gap-5'>
+        <div className='mb-5 px-4 flex flex-nowrap w-full gap-5'>
           <DropDown
             placeholder='select...'
             listItems={pokemonDD}

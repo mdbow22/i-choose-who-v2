@@ -37,7 +37,7 @@ const PokedexCard: React.FC<{
   };
 
   return (
-    <div className='card md:w-1/4 px-2 py-2'>
+    <div className='card w-1/2 md:w-1/4 px-4 py-2'>
       <div className='card-body relative h-full w-full bg-zinc-50 rounded-md border-t border-l border-zinc-400/25 px-2 py-1 shadow shadow-zinc-500/25'>
         <h4 className='text-xl font-bold text-teal-600'>
           #{pokemon.natlDex} {pokemon.name}{' '}
