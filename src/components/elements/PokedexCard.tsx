@@ -78,7 +78,7 @@ const PokedexCard: React.FC<{
           </button>
           <button
             type='button'
-            className='w-1/2 text-center'
+            className='w-1/2 text-center text-red-500 hover:bg-red-500 hover:text-zinc-50 rounded-br-md'
             onClick={() => remove(pokemon.pokeId)}
           >
             <FontAwesomeIcon icon={faXmark} size='lg' />

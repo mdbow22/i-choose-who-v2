@@ -8,6 +8,7 @@ import { authOptions } from './api/auth/[...nextauth]';
 import { prisma } from '@/server/db';
 import DropDown from '@/components/elements/inputs/DropDown';
 import { useAPI } from '@/utils/api';
+import Loader from '@/components/elements/Loader';
 
 export type PokemonDropDown = {
     id: number;
@@ -21,6 +22,7 @@ const Profile: NextPage<{ allPokemon: PokemonDropDown }> = ({ allPokemon }) => {
   const [pokemonDD, setPokemonDD] = useState<any[]>([]);
   const [selectedPokes, setSelectedPokes] = useState<any[]>([]);
   const [userPokemon, setUserPokemon] = useState<Pokemon[]>([]);
+  const [loading, setLoading] = useState(true);
   const API = useAPI();
 
   // useEffect(() => {
@@ -41,11 +43,30 @@ const Profile: NextPage<{ allPokemon: PokemonDropDown }> = ({ allPokemon }) => {
           value: poke,
           label: poke.region ? `#${poke.natlDex} ${poke.name} - ${poke.region}` : `#${poke.natlDex} ${poke.name}`,
         })))
+
+        setLoading(false);
+      }).catch((err: any) => {
+        setLoading(false);
+        console.error(err);
       })
     }
 
     return () => { initialized = true; }
   }, [API, allPokemon])
+
+  useEffect(() => {
+    if(userPokemon.length) {
+      setPokemonDD(allPokemon.filter(poke => !userPokemon.map((poke: any) => poke.pokeId).includes(poke.id)).map(poke => ({
+        value: poke,
+        label: poke.region ? `#${poke.natlDex} ${poke.name} - ${poke.region}` : `#${poke.natlDex} ${poke.name}`,
+      })))
+    } else {
+      setPokemonDD(allPokemon.map(poke => ({
+        value: poke,
+        label: poke.region ? `#${poke.natlDex} ${poke.name} - ${poke.region}` : `#${poke.natlDex} ${poke.name}`,
+      })))
+    }
+  }, [userPokemon, allPokemon])
 
   const submit = async () => {
     if(selectedPokes.length) {
@@ -94,13 +115,23 @@ const Profile: NextPage<{ allPokemon: PokemonDropDown }> = ({ allPokemon }) => {
           />
           <button type='button' className='btn' onClick={submit}>Add</button>
         </div>
-        <div className="flex flex-row flex-wrap items-stretch">
-            {userPokemon.map(poke => {
+        {loading &&
+        <div className='w-full flex justify-center items-center mt-16'>
+          <Loader />
+        </div>
+        }
+        {!loading &&
+          <div className="flex flex-row flex-wrap items-stretch">
+            {userPokemon.length ? userPokemon.map(poke => {
                 return (
                     <PokedexCard pokemon={poke} remove={remove} key={poke.pokeId} />
                 )
-            })}
+            }) :
+              <div className='text-center'>You have no Pokémon in your Pokédex</div>
+            }
         </div>
+        }
+        
       </main>
     </div>
   );
