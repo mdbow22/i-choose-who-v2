@@ -54,14 +54,7 @@ export const authOptions: NextAuthOptions = {
       clientSecret: env.DISCORD_CLIENT_SECRET,
     }),
     EmailProvider({
-      server: {
-        host: env.EMAIL_SERVER,
-        port: env.PORT,
-        auth: {
-          user: env.USERNAME,
-          pass: env.PASSWORD,
-        },
-      },
+      server: env.EMAIL_SERVER,
       from: env.EMAIL_FROM,
     }),
     /**
