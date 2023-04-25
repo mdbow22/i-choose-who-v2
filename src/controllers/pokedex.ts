@@ -1,23 +1,26 @@
-import { NextApiRequest } from 'next';
-import { prisma } from '@/server/db';
-import { Session } from 'next-auth';
-import axios from 'axios';
+import { NextApiRequest } from "next";
+import { prisma } from "@/server/db";
+import { Session } from "next-auth";
+import axios from "axios";
 
 const getRegion = (pokemon: any) => {
-        switch (pokemon.pokemon.region) {
-          case 'Alola': {
-            return '-alola';
-          }
-          case 'Galarian': {
-            return '-galar';
-          }
-          case 'Hisuian': {
-            return '-hisui';
-          }
-          default:
-            return '';
-        }
-}
+  if (pokemon.pokemon.name === `Sirfetch’d`) {
+    return "";
+  }
+  switch (pokemon.pokemon.region) {
+    case "Alola": {
+      return "-alola";
+    }
+    case "Galarian": {
+      return "-galar";
+    }
+    case "Hisuian": {
+      return "-hisui";
+    }
+    default:
+      return "";
+  }
+};
 
 const get = async (req: NextApiRequest, Session: Session) => {
   const user = (req.query.userId as string) ?? Session.user.id;
@@ -30,31 +33,31 @@ const get = async (req: NextApiRequest, Session: Session) => {
       pokemon: true,
     },
     orderBy: {
-        pokemon: {
-            natlDex: 'asc',
-        }
-    }
+      pokemon: {
+        natlDex: "asc",
+      },
+    },
   });
 
   let pokeAPIInfo: any[] = [];
   for (let i = 0; i < response.length; i++) {
-    let name = response[i].pokemon.name.replace(/['‘’"“”]/g, '').toLowerCase();
+    let name = response[i].pokemon.name.replace(/['‘’"“”]/g, "").toLowerCase();
 
-    switch(name) {
-      case 'pumpkaboo':
-      case 'gourgeist': {
-        name = name + '-average';
+    switch (name) {
+      case "pumpkaboo":
+      case "gourgeist": {
+        name = name + "-average";
         break;
       }
-      case 'mr. mime': {
-        name = 'mr-mime';
+      case "mr. mime": {
+        name = "mr-mime";
         break;
       }
       default: {
         break;
       }
     }
-    
+
     const info = await axios.get(
       `https://pokeapi.co/api/v2/pokemon/${name}${getRegion(response[i])}`
     );
@@ -72,13 +75,15 @@ const get = async (req: NextApiRequest, Session: Session) => {
       type: [pokemon.pokemon.type1, pokemon.pokemon.type2],
       sprite: pokeAPIInfo.find(
         (poke: any) =>
-          poke.name === pokemon.pokemon.name.replace(/['‘’"“”]/g, '').toLowerCase() ||
           poke.name ===
-            pokemon.pokemon.name.replace(/['‘’"“”]/g, '')
+            pokemon.pokemon.name.replace(/['‘’"“”]/g, "").toLowerCase() ||
+          poke.name ===
+            pokemon.pokemon.name
+              .replace(/['‘’"“”]/g, "")
               .toLowerCase()
               .concat(getRegion(pokemon)) ||
-            poke.name === `${pokemon.pokemon.name.toLowerCase()}-average` ||
-            (poke.name === `mr-mime` && pokemon.pokemon.name === 'Mr. Mime')
+          poke.name === `${pokemon.pokemon.name.toLowerCase()}-average` ||
+          (poke.name === `mr-mime` && pokemon.pokemon.name === "Mr. Mime")
       )?.sprites?.front_default,
     };
   });
@@ -88,18 +93,18 @@ const get = async (req: NextApiRequest, Session: Session) => {
 
 const post = async (req: NextApiRequest, Session: Session) => {
   const newPokemon = req.body;
-    console.log(newPokemon.pokeId);
+  console.log(newPokemon.pokeId);
   if (Array.isArray(newPokemon.pokeId)) {
     let responses = [];
-    for(let i = 0; i < newPokemon.pokeId.length; i++) {
-        const response = await prisma.usersPokemon.create({
-            data: {
-                userId: Session.user.id,
-                pokeId: newPokemon.pokeId[i],
-            }
-        })
+    for (let i = 0; i < newPokemon.pokeId.length; i++) {
+      const response = await prisma.usersPokemon.create({
+        data: {
+          userId: Session.user.id,
+          pokeId: newPokemon.pokeId[i],
+        },
+      });
 
-        responses.push(response);   
+      responses.push(response);
     }
     return responses;
   } else {
@@ -115,35 +120,35 @@ const post = async (req: NextApiRequest, Session: Session) => {
 };
 
 const put = async (req: NextApiRequest, Session: Session) => {
-    if(req.body.task === 'delete') {
-        const response = await prisma.usersPokemon.deleteMany({
-            where: {
-                userId: Session.user.id,
-                pokeId: {
-                    in: req.body.pokeIds,
-                }
-            }
-        });
+  if (req.body.task === "delete") {
+    const response = await prisma.usersPokemon.deleteMany({
+      where: {
+        userId: Session.user.id,
+        pokeId: {
+          in: req.body.pokeIds,
+        },
+      },
+    });
 
-        return response;
-    }
+    return response;
+  }
 
-    if(req.body.task === 'favorite') {
-        const response = await prisma.usersPokemon.update({
-            where: {
-                userId_pokeId: {
-                    userId: Session.user.id,
-                    pokeId: req.body.pokeId,
-                }
-            },
-            data: {
-                favorite: req.body.favorite,
-            }
-        });
+  if (req.body.task === "favorite") {
+    const response = await prisma.usersPokemon.update({
+      where: {
+        userId_pokeId: {
+          userId: Session.user.id,
+          pokeId: req.body.pokeId,
+        },
+      },
+      data: {
+        favorite: req.body.favorite,
+      },
+    });
 
-        return response;
-    }
-}
+    return response;
+  }
+};
 
 const pokedex = {
   get,
