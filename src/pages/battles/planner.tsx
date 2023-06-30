@@ -11,30 +11,14 @@ import { prisma } from '@/server/db';
 
 const planner: NextPage<{ allPokemon: PokemonDropDown }> = ({ allPokemon }) => {
 
-  const [pokemonDD, setPokemonDD] = useState<any[]>([]);
+  const pokemonDD = allPokemon.map(poke => ({
+    value: poke,
+    label: poke.region ? `#${poke.natlDex} ${poke.name} - ${poke.region}` : `#${poke.natlDex} ${poke.name}`,
+  }))
   const [selectedPokes, setSelectedPokes] = useState<any[]>([]);
   const [userPokemon, setUserPokemon] = useState<Pokemon[]>([]);
 
   const API = useAPI();
-
-  useEffect(() => {
-    let initialized = false;
-
-    if(!initialized) {
-      API.get('/api/pokedex/userPokemon').then((res: any) => {
-        setUserPokemon(res.data);
-
-        setPokemonDD(allPokemon.filter(poke => !res.data.map((poke: any) => poke.pokeId).includes(poke.id)).map(poke => ({
-          value: poke,
-          label: poke.region ? `#${poke.natlDex} ${poke.name} - ${poke.region}` : `#${poke.natlDex} ${poke.name}`,
-        })))
-      }).catch((err: any) => {
-        console.error(err);
-      })
-    }
-
-    return () => { initialized = true; }
-  }, [API, allPokemon])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

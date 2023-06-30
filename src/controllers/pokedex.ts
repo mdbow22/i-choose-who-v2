@@ -3,7 +3,7 @@ import { prisma } from "@/server/db";
 import { Session } from "next-auth";
 import axios from "axios";
 
-const getRegion = (pokemon: any) => {
+export const getRegion = (pokemon: any) => {
   if (pokemon.pokemon.name === `Sirfetch’d`) {
     return "";
   }

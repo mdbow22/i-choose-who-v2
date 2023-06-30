@@ -2,6 +2,8 @@ import { NextApiRequest } from "next";
 import { prisma } from "@/server/db";
 import { Session } from "next-auth";
 import { PokemonClient } from "pokenode-ts";
+import axios from "axios";
+import { getRegion } from "./pokedex";
 
 export type EligiblePoke = {
   pokemon: {
@@ -13,6 +15,7 @@ export type EligiblePoke = {
     better?: boolean;
     good?: boolean;
   };
+  sprite?: string;
 };
 
 export type EnemyPoke = {
@@ -157,12 +160,7 @@ const get = async (req: NextApiRequest, Session: Session) => {
   });
 
   for (let i = 0; i < enemyWithTypeInfo.length; i++) {
-    console.log(
-      enemyWithTypeInfo[i].weakTo.map(
-        (type) => type.split("")[0].toUpperCase() + type.substring(1)
-      )
-    );
-    const eligiblePokes = await prisma.usersPokemon.findMany({
+    let eligiblePokes = await prisma.usersPokemon.findMany({
       where: {
         userId: user,
         pokemon: {
@@ -191,63 +189,115 @@ const get = async (req: NextApiRequest, Session: Session) => {
             natlDex: true,
             type1: true,
             type2: true,
+            region: true,
           },
         },
       },
     });
 
-    console.log(eligiblePokes);
+    let pokeAPIInfo: any[] = [];
 
-    enemyWithTypeInfo[i].winners = {
-      best: selectTier(eligiblePokes, enemyWithTypeInfo[i], "best"),
-      better: selectTier(eligiblePokes, enemyWithTypeInfo[i], "better"),
-      good: selectTier(eligiblePokes, enemyWithTypeInfo[i], "good"),
-    };
+    for (let i = 0; i < eligiblePokes.length; i++) {
+      let name = eligiblePokes[i].pokemon.name
+        .replace(/['‘’"“”]/g, "")
+        .toLowerCase();
+
+      switch (name) {
+        case "pumpkaboo":
+        case "gourgeist": {
+          name = name + "-average";
+          break;
+        }
+        case "mr. mime": {
+          name = "mr-mime";
+          break;
+        }
+        default: {
+          break;
+        }
+      }
+
+      const info = await axios.get(
+        `https://pokeapi.co/api/v2/pokemon/${name}${getRegion(eligiblePokes[i])}`
+      );
+      //console.log(info.data);
+      pokeAPIInfo.push(info.data);
+    }
+
+    const pokesWithSprite = eligiblePokes.map(pokemon => ({
+      ...pokemon,
+      sprite: pokeAPIInfo.find(
+        (poke: any) =>
+          poke.name ===
+            pokemon.pokemon.name.replace(/['‘’"“”]/g, "").toLowerCase() ||
+          poke.name ===
+            pokemon.pokemon.name
+              .replace(/['‘’"“”]/g, "")
+              .toLowerCase()
+              .concat(getRegion(pokemon)) ||
+          poke.name === `${pokemon.pokemon.name.toLowerCase()}-average` ||
+          (poke.name === `mr-mime` && pokemon.pokemon.name === "Mr. Mime")
+      )?.sprites?.front_default,
+    }))
+
+    enemyWithTypeInfo[i].winners = selectTier(
+      pokesWithSprite,
+      enemyWithTypeInfo[i]
+    );
   }
 
   return enemyWithTypeInfo;
 };
 
-const selectTier = (
-  pokemon: EligiblePoke[],
-  enemy: EnemyPoke,
-  tier: string
-) => {
-  switch (tier) {
-    case "best": {
-      return pokemon.filter((poke) => {
-        if (poke.pokemon.type2) {
-          return (
-            enemy.weakTo.includes(poke.pokemon.type1.toLowerCase()) &&
-            enemy.weakTo.includes(poke.pokemon.type2.toLowerCase())
-          );
-        }
+const selectTier = (pokemon: EligiblePoke[], enemy: EnemyPoke) => {
+  let winners: any = {
+    best: [],
+    better: [],
+    good: [],
+  };
 
-        return enemy.weakTo.includes(poke.pokemon.type1.toLowerCase());
-      });
-    }
-    case "better": {
-      const currEligible = pokemon.filter(
-        (poke) =>
-          !enemy.super.includes(poke.pokemon.name) &&
-          (enemy.weakTo.includes(poke.pokemon.type1.toLowerCase()) ||
-            (poke.pokemon.type2 &&
-              enemy.weakTo.includes(poke.pokemon.type2.toLowerCase())))
+  winners.best = pokemon.filter((poke) => {
+    if (poke.pokemon.type2) {
+      return (
+        enemy.weakTo.includes(poke.pokemon.type1.toLowerCase()) &&
+        enemy.weakTo.includes(poke.pokemon.type2.toLowerCase())
       );
-      return currEligible;
     }
-    default: {
-      return pokemon.filter((poke) => {
-        if (poke.pokemon.type2) {
-          return (
-            !enemy.super.includes(poke.pokemon.type1.toLowerCase()) &&
-            !enemy.super.includes(poke.pokemon.type2.toLowerCase())
-          );
-        }
-        return !enemy.super.includes(poke.pokemon.type1.toLowerCase());
-      });
-    }
-  }
+
+    return enemy.weakTo.includes(poke.pokemon.type1.toLowerCase());
+  });
+
+  winners.better = pokemon.filter(
+    (poke) =>
+      !winners?.best
+        ?.map((poke: EligiblePoke) => poke.pokemon.name)
+        ?.includes(poke.pokemon.name) &&
+      (enemy.weakTo.includes(poke.pokemon.type1.toLowerCase()) ||
+        (poke.pokemon.type2 &&
+          enemy.weakTo.includes(poke.pokemon.type2.toLowerCase())))
+  );
+
+  winners.good = pokemon
+    .filter((poke) => {
+      if (poke.pokemon.type2) {
+        return (
+          !enemy.super.includes(poke.pokemon.type1.toLowerCase()) &&
+          !enemy.super.includes(poke.pokemon.type2.toLowerCase())
+        );
+      }
+      return !enemy.super.includes(poke.pokemon.type1.toLowerCase());
+    })
+    .filter(
+      (poke) =>
+        !winners.best
+          .map((pokemon: EligiblePoke) => pokemon.pokemon.name)
+          .includes(poke.pokemon.name) &&
+        !winners.better
+          .map((pokemon: EligiblePoke) => pokemon.pokemon.name)
+          .includes(poke.pokemon.name)
+    );
+
+  return winners;
 };
 
 const battle = {
