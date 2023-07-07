@@ -10,7 +10,7 @@ import { authOptions } from "../api/auth/[...nextauth]";
 import { prisma } from "@/server/db";
 import { EnemyPoke } from "@/controllers/battle";
 
-const planner: NextPage<{ allPokemon: PokemonDropDown }> = ({ allPokemon }) => {
+const Planner: NextPage<{ allPokemon: PokemonDropDown }> = ({ allPokemon }) => {
   const pokemonDD = allPokemon.map((poke) => ({
     value: poke,
     label: poke.region
@@ -71,7 +71,7 @@ const planner: NextPage<{ allPokemon: PokemonDropDown }> = ({ allPokemon }) => {
         </form>
         {results?.map((enemy) => {
           return (
-            <section className="mt-5">
+            <section className="mt-5" key={enemy.id}>
               <h2 className="text-2xl text-teal-600 font-bold mb-1">
                 {enemy.name}
               </h2>
@@ -80,7 +80,7 @@ const planner: NextPage<{ allPokemon: PokemonDropDown }> = ({ allPokemon }) => {
                   Weak to:{" "}
                   {enemy.weakTo.map((type, i) => {
                     return (
-                      <>{i === enemy.weakTo.length - 1 ? type : `${type}, `}</>
+                      <React.Fragment key={`${enemy.name}-${type}`}>{i === enemy.weakTo.length - 1 ? type : `${type}, `}</React.Fragment>
                     );
                   })}
                 </p>
@@ -88,7 +88,7 @@ const planner: NextPage<{ allPokemon: PokemonDropDown }> = ({ allPokemon }) => {
                   Resists:{" "}
                   {enemy.resists.map((type, i) => {
                     return (
-                      <>{i === enemy.resists.length - 1 ? type : `${type}, `}</>
+                      <React.Fragment key={`${enemy.name}-${type}`}>{i === enemy.resists.length - 1 ? type : `${type}, `}</React.Fragment>
                     );
                   })}
                 </p>
@@ -99,8 +99,8 @@ const planner: NextPage<{ allPokemon: PokemonDropDown }> = ({ allPokemon }) => {
                   {!!enemy.winners?.best?.length
                     ? enemy.winners.best.map((poke) => {
                         return (
-                          <div className="flex">
-                            <img src={poke.sprite} />
+                          <div className="flex" key={poke.pokemon.natlDex}>
+                            <img src={poke.sprite} alt={`sprite for ${poke.pokemon.name}`} />
                             <div className="flex flex-col">
                               <span>{poke.pokemon.name}</span>
                               <div>
@@ -125,8 +125,8 @@ const planner: NextPage<{ allPokemon: PokemonDropDown }> = ({ allPokemon }) => {
                     : !!enemy.winners?.better?.length
                     ? enemy.winners.better.map((poke) => {
                         return (
-                          <div className="flex">
-                            <img src={poke.sprite} />
+                          <div className="flex" key={poke.pokemon.natlDex}>
+                            <img src={poke.sprite} alt={`sprite for ${poke.pokemon.name}`} />
                             <div className="flex flex-col">
                               <span>{poke.pokemon.name}</span>
                               <div>
@@ -151,8 +151,8 @@ const planner: NextPage<{ allPokemon: PokemonDropDown }> = ({ allPokemon }) => {
                     : !!enemy.winners?.good?.length
                     ? enemy.winners.good.map((poke) => {
                         return (
-                          <div className="flex">
-                            <img src={poke.sprite} />
+                          <div className="flex" key={poke.pokemon.natlDex}>
+                            <img src={poke.sprite} alt={`sprite for ${poke.pokemon.name}`} />
                             <div className="flex flex-col">
                               <span>{poke.pokemon.name}</span>
                               <div>
@@ -214,4 +214,4 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   };
 }
 
-export default planner;
+export default Planner;
