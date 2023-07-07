@@ -69,82 +69,117 @@ const planner: NextPage<{ allPokemon: PokemonDropDown }> = ({ allPokemon }) => {
             Battle
           </button>
         </form>
-          {results?.map((enemy) => {
-            return (
-              <section className="mt-5">
-                <h2 className="text-2xl text-teal-600 font-bold mb-1">
-                  {enemy.name}
-                </h2>
-                <div className="mb-2">
+        {results?.map((enemy) => {
+          return (
+            <section className="mt-5">
+              <h2 className="text-2xl text-teal-600 font-bold mb-1">
+                {enemy.name}
+              </h2>
+              <div className="mb-2">
                 <p>
                   Weak to:{" "}
                   {enemy.weakTo.map((type, i) => {
                     return (
-                      <>
-                      {i === enemy.weakTo.length - 1 ? type : `${type}, `}
-                      </>
-                    )
+                      <>{i === enemy.weakTo.length - 1 ? type : `${type}, `}</>
+                    );
                   })}
                 </p>
                 <p>
                   Resists:{" "}
                   {enemy.resists.map((type, i) => {
                     return (
-                      <>
-                      {i === enemy.resists.length - 1 ? type : `${type}, `}
-                      </>
-                    )
+                      <>{i === enemy.resists.length - 1 ? type : `${type}, `}</>
+                    );
                   })}
                 </p>
+              </div>
+              <div>
+                <h3 className="font-bold">Who you should use: </h3>
+                <div className="flex gap-5">
+                  {!!enemy.winners?.best?.length
+                    ? enemy.winners.best.map((poke) => {
+                        return (
+                          <div className="flex">
+                            <img src={poke.sprite} />
+                            <div className="flex flex-col">
+                              <span>{poke.pokemon.name}</span>
+                              <div>
+                                <span
+                                  className={`${poke.pokemon.type1} tag rounded-full py-1 px-2 text-xs`}
+                                >
+                                  {poke.pokemon.type1}
+                                </span>
+                                &nbsp;&nbsp;
+                                {poke.pokemon.type2 && (
+                                  <span
+                                    className={`tag rounded-full py-1 px-2 text-xs ${poke.pokemon.type2}`}
+                                  >
+                                    {poke.pokemon.type2}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })
+                    : !!enemy.winners?.better?.length
+                    ? enemy.winners.better.map((poke) => {
+                        return (
+                          <div className="flex">
+                            <img src={poke.sprite} />
+                            <div className="flex flex-col">
+                              <span>{poke.pokemon.name}</span>
+                              <div>
+                                <span
+                                  className={`${poke.pokemon.type1} tag rounded-full py-1 px-2 text-xs`}
+                                >
+                                  {poke.pokemon.type1}
+                                </span>
+                                &nbsp;&nbsp;
+                                {poke.pokemon.type2 && (
+                                  <span
+                                    className={`tag rounded-full py-1 px-2 text-xs ${poke.pokemon.type2}`}
+                                  >
+                                    {poke.pokemon.type2}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })
+                    : !!enemy.winners?.good?.length
+                    ? enemy.winners.good.map((poke) => {
+                        return (
+                          <div className="flex">
+                            <img src={poke.sprite} />
+                            <div className="flex flex-col">
+                              <span>{poke.pokemon.name}</span>
+                              <div>
+                                <span
+                                  className={`${poke.pokemon.type1} tag rounded-full py-1 px-2 text-xs`}
+                                >
+                                  {poke.pokemon.type1}
+                                </span>
+                                &nbsp;&nbsp;
+                                {poke.pokemon.type2 && (
+                                  <span
+                                    className={`tag rounded-full py-1 px-2 text-xs ${poke.pokemon.type2}`}
+                                  >
+                                    {poke.pokemon.type2}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })
+                    : "No one! You need to find some pokemon, because none of yours is strong here."}
                 </div>
-                <div>
-                  <h3 className="font-bold">Who you should use: </h3>
-                  <div className="flex gap-5">
-                  {!!enemy.winners?.best?.length ? enemy.winners.best.map(poke => {
-                    return (
-                      <div className="flex">
-                        <img src={poke.sprite} />
-                        <div className="flex flex-col">
-                          <span>{poke.pokemon.name}</span>
-                          <div>
-                            <span className={`${poke.pokemon.type1} tag rounded-full py-1 px-2 text-xs`}>{poke.pokemon.type1}</span>&nbsp;&nbsp;
-                            {poke.pokemon.type2 && <span className={`tag rounded-full py-1 px-2 text-xs ${poke.pokemon.type2}`}>{poke.pokemon.type2}</span>}
-                          </div>
-                        </div>
-                      </div>
-                    )
-                  }) : !!enemy.winners?.better?.length ? enemy.winners.better.map(poke => {
-                    return (
-                      <div className="flex">
-                        <img src={poke.sprite} />
-                        <div className="flex flex-col">
-                          <span>{poke.pokemon.name}</span>
-                          <div>
-                            <span className={`${poke.pokemon.type1} tag rounded-full py-1 px-2 text-xs`}>{poke.pokemon.type1}</span>&nbsp;&nbsp;
-                            {poke.pokemon.type2 && <span className={`tag rounded-full py-1 px-2 text-xs ${poke.pokemon.type2}`}>{poke.pokemon.type2}</span>}
-                          </div>
-                        </div>
-                      </div>
-                    )
-                  }) : !!enemy.winners?.good?.length ? enemy.winners.good.map(poke => {
-                    return (
-                      <div className="flex">
-                        <img src={poke.sprite} />
-                        <div className="flex flex-col">
-                          <span>{poke.pokemon.name}</span>
-                          <div>
-                            <span className={`${poke.pokemon.type1} tag rounded-full py-1 px-2 text-xs`}>{poke.pokemon.type1}</span>&nbsp;&nbsp;
-                            {poke.pokemon.type2 && <span className={`tag rounded-full py-1 px-2 text-xs ${poke.pokemon.type2}`}>{poke.pokemon.type2}</span>}
-                          </div>
-                        </div>
-                      </div>
-                    )
-                  }) : 'No one! You need to find some pokemon, because none of yours is strong here.'}
-                  </div>
-                </div>
-              </section>
-            );
-          })}
+              </div>
+            </section>
+          );
+        })}
       </main>
     </div>
   );
