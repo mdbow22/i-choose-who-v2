@@ -42,7 +42,7 @@ const Planner: NextPage<{ allPokemon: PokemonDropDown }> = ({ allPokemon }) => {
   return (
     <div className="min-h-screen bg-gradient-to-t from-[#c6f2ff] to-[#ffffff]">
       <TopNav />
-      <main className="container relative mx-auto mt-10 max-w-5xl min-h-screen">
+      <main className="container relative mx-auto mt-10 px-3 max-w-5xl min-h-screen">
         <h1 className="mb-5 text-4xl font-bold text-teal-600">
           Battle Planner
         </h1>
@@ -94,35 +94,36 @@ const Planner: NextPage<{ allPokemon: PokemonDropDown }> = ({ allPokemon }) => {
                 </p>
               </div>
               <div>
-                <h3 className="font-bold">Who you should use: </h3>
-                <div className="flex gap-5">
-                  {!!enemy.winners?.best?.length
-                    ? enemy.winners.best.map((poke) => {
-                        return (
-                          <div className="flex" key={poke.pokemon.natlDex}>
-                            <img src={poke.sprite} alt={`sprite for ${poke.pokemon.name}`} />
+                {enemy.winners?.chosenOne &&
+                  <>
+                  <h3 className="font-bold">The Best Pokemon You've Got:</h3>
+                <div className="flex" key={enemy.winners?.chosenOne?.pokemon.natlDex}>
+                            <img src={enemy.winners?.chosenOne?.sprite} alt={`sprite for ${enemy.winners?.chosenOne?.pokemon.name}`} />
                             <div className="flex flex-col">
-                              <span>{poke.pokemon.name}</span>
+                              <span>{enemy.winners?.chosenOne?.pokemon.name}</span>
                               <div>
                                 <span
-                                  className={`${poke.pokemon.type1} tag rounded-full py-1 px-2 text-xs`}
+                                  className={`${enemy.winners?.chosenOne?.pokemon.type1} tag rounded-full py-1 px-2 text-xs`}
                                 >
-                                  {poke.pokemon.type1}
+                                  {enemy.winners?.chosenOne?.pokemon.type1}
                                 </span>
                                 &nbsp;&nbsp;
-                                {poke.pokemon.type2 && (
+                                {enemy.winners?.chosenOne?.pokemon.type2 && (
                                   <span
-                                    className={`tag rounded-full py-1 px-2 text-xs ${poke.pokemon.type2}`}
+                                    className={`tag rounded-full py-1 px-2 text-xs ${enemy.winners?.chosenOne?.pokemon.type2}`}
                                   >
-                                    {poke.pokemon.type2}
+                                    {enemy.winners?.chosenOne?.pokemon.type2}
                                   </span>
                                 )}
                               </div>
                             </div>
                           </div>
-                        );
-                      })
-                    : !!enemy.winners?.better?.length
+                  </>
+                }
+                
+                <h3 className="font-bold">Other good options from your collection: </h3>
+                <div className="flex flex-wrap gap-5">
+                  {!!enemy.winners?.better?.length
                     ? enemy.winners.better.map((poke) => {
                         return (
                           <div className="flex" key={poke.pokemon.natlDex}>

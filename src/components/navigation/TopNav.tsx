@@ -7,8 +7,8 @@ const TopNav: React.FC = () => {
         {/*eslint-disable-next-line @next/next/no-img-element*/}
         <img src='/logo.png' className='h-8' alt='I Choose Who? Logo' />
         <ul className='flex flex-row flex-nowrap gap-2'>
-            <li className='btn btn-secondary'><Link href='/battles/planner'>Battle Planner</Link></li>
-            <li className='btn btn-secondary'><Link href='/profile'>My Pokédex</Link></li>
+            <li className='btn btn-secondary text-sm md:text-xl text-center'><Link href='/battles/planner'>Battle Planner</Link></li>
+            <li className='btn btn-secondary text-sm md:text-xl text-center'><Link href='/profile'>My Pokédex</Link></li>
         </ul>
     </nav>
   )

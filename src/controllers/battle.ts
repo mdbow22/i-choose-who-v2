@@ -25,7 +25,7 @@ export type EnemyPoke = {
   resists: string[];
   super: string[];
   winners?: {
-    best?: EligiblePoke[];
+    chosenOne?: EligiblePoke;
     better?: EligiblePoke[];
     good?: EligiblePoke[];
   };
@@ -322,7 +322,7 @@ const selectTier = (pokemon: EligiblePoke[], enemy: EnemyPoke) => {
         !bothSuper
           .map((pokemon: EligiblePoke) => pokemon.pokemon.name)
           .includes(poke.pokemon.name) &&
-        !winners.better
+        !oneSuper
           .map((pokemon: EligiblePoke) => pokemon.pokemon.name)
           .includes(poke.pokemon.name)
     );
@@ -335,7 +335,7 @@ const selectTier = (pokemon: EligiblePoke[], enemy: EnemyPoke) => {
   winners.better = potentials.filter(
     (a) => a.pokemon.name !== winners.chosenOne?.pokemon.name
   );
-  //winners.good = noSuper.sort((a, b) => a.stats && b.stats ? b.stats - a.stats : 0)
+  winners.good = noSuper.sort((a, b) => a.stats && b.stats ? b.stats - a.stats : 0)
 
   return winners;
 };
