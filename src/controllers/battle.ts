@@ -16,6 +16,7 @@ export type EligiblePoke = {
     good?: boolean;
   };
   sprite?: string;
+  stats?: number;
 };
 
 export type EnemyPoke = {
@@ -171,10 +172,26 @@ const get = async (req: NextApiRequest, Session: Session) => {
                   (type) => type.split("")[0].toUpperCase() + type.substring(1)
                 ),
               },
+              OR: [
+                {
+                  type2: {
+                    notIn: enemyWithTypeInfo[i].super.map(
+                      (type) =>
+                        type.split("")[0].toUpperCase() + type.substring(1)
+                    ),
+                  },
+                },
+                { type2: null },
+              ],
             },
             {
               type2: {
                 in: enemyWithTypeInfo[i].weakTo.map(
+                  (type) => type.split("")[0].toUpperCase() + type.substring(1)
+                ),
+              },
+              type1: {
+                notIn: enemyWithTypeInfo[i].super.map(
                   (type) => type.split("")[0].toUpperCase() + type.substring(1)
                 ),
               },
@@ -218,15 +235,16 @@ const get = async (req: NextApiRequest, Session: Session) => {
       }
 
       const info = await axios.get(
-        `https://pokeapi.co/api/v2/pokemon/${name}${getRegion(eligiblePokes[i])}`
+        `https://pokeapi.co/api/v2/pokemon/${name}${getRegion(
+          eligiblePokes[i]
+        )}`
       );
       //console.log(info.data);
       pokeAPIInfo.push(info.data);
     }
 
-    const pokesWithSprite = eligiblePokes.map(pokemon => ({
-      ...pokemon,
-      sprite: pokeAPIInfo.find(
+    const pokesWithSprite = eligiblePokes.map((pokemon) => {
+      const apiInfo = pokeAPIInfo.find(
         (poke: any) =>
           poke.name ===
             pokemon.pokemon.name.replace(/['‘’"“”]/g, "").toLowerCase() ||
@@ -237,8 +255,17 @@ const get = async (req: NextApiRequest, Session: Session) => {
               .concat(getRegion(pokemon)) ||
           poke.name === `${pokemon.pokemon.name.toLowerCase()}-average` ||
           (poke.name === `mr-mime` && pokemon.pokemon.name === "Mr. Mime")
-      )?.sprites?.front_default,
-    }))
+      );
+
+      return {
+        ...pokemon,
+        sprite: apiInfo?.sprites?.front_default,
+        stats: apiInfo?.stats.reduce(
+          (cum: number, curr: any) => cum + curr["base_stat"],
+          0
+        ),
+      };
+    });
 
     enemyWithTypeInfo[i].winners = selectTier(
       pokesWithSprite,
@@ -250,13 +277,16 @@ const get = async (req: NextApiRequest, Session: Session) => {
 };
 
 const selectTier = (pokemon: EligiblePoke[], enemy: EnemyPoke) => {
-  let winners: any = {
-    best: [],
+  let winners: {
+    better: EligiblePoke[];
+    good: EligiblePoke[];
+    chosenOne?: EligiblePoke;
+  } = {
     better: [],
     good: [],
   };
 
-  winners.best = pokemon.filter((poke) => {
+  const bothSuper = pokemon.filter((poke) => {
     if (poke.pokemon.type2) {
       return (
         enemy.weakTo.includes(poke.pokemon.type1.toLowerCase()) &&
@@ -267,9 +297,9 @@ const selectTier = (pokemon: EligiblePoke[], enemy: EnemyPoke) => {
     return enemy.weakTo.includes(poke.pokemon.type1.toLowerCase());
   });
 
-  winners.better = pokemon.filter(
+  const oneSuper = pokemon.filter(
     (poke) =>
-      !winners?.best
+      !bothSuper
         ?.map((poke: EligiblePoke) => poke.pokemon.name)
         ?.includes(poke.pokemon.name) &&
       (enemy.weakTo.includes(poke.pokemon.type1.toLowerCase()) ||
@@ -277,7 +307,7 @@ const selectTier = (pokemon: EligiblePoke[], enemy: EnemyPoke) => {
           enemy.weakTo.includes(poke.pokemon.type2.toLowerCase())))
   );
 
-  winners.good = pokemon
+  const noSuper = pokemon
     .filter((poke) => {
       if (poke.pokemon.type2) {
         return (
@@ -289,13 +319,23 @@ const selectTier = (pokemon: EligiblePoke[], enemy: EnemyPoke) => {
     })
     .filter(
       (poke) =>
-        !winners.best
+        !bothSuper
           .map((pokemon: EligiblePoke) => pokemon.pokemon.name)
           .includes(poke.pokemon.name) &&
         !winners.better
           .map((pokemon: EligiblePoke) => pokemon.pokemon.name)
           .includes(poke.pokemon.name)
     );
+
+  const potentials = [...bothSuper, ...oneSuper].sort((a, b) =>
+    a.stats && b.stats ? b.stats - a.stats : 0
+  );
+
+  winners.chosenOne = potentials[0];
+  winners.better = potentials.filter(
+    (a) => a.pokemon.name !== winners.chosenOne?.pokemon.name
+  );
+  //winners.good = noSuper.sort((a, b) => a.stats && b.stats ? b.stats - a.stats : 0)
 
   return winners;
 };
