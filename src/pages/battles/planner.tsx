@@ -96,7 +96,7 @@ const Planner: NextPage<{ allPokemon: PokemonDropDown }> = ({ allPokemon }) => {
               <div>
                 {enemy.winners?.chosenOne &&
                   <>
-                  <h3 className="font-bold">The Best Pokemon You've Got:</h3>
+                  <h3 className="font-bold">The Best Pokemon You&apos;ve Got:</h3>
                 <div className="flex" key={enemy.winners?.chosenOne?.pokemon.natlDex}>
                             <img src={enemy.winners?.chosenOne?.sprite} alt={`sprite for ${enemy.winners?.chosenOne?.pokemon.name}`} />
                             <div className="flex flex-col">
